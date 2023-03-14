@@ -1,24 +1,50 @@
 #lang aws-lambda-serverless
-
 service: lambda-go-template
 
 frameworkVersion: '3'
 
+useDotenv: true
+
 provider:
   name: aws
   runtime: go1.x
-  region: ap-northeast-1
+  region: ${env:AWS_REGION}
+  memorySize: 128
+  
+  iam:
+    role:
+      statements:
+        - Effect: "Allow"
+          Action:
+            - "dynamodb:*"
+          Resource: ${env:DYNAMODB_TABLE_ARN}
 
 package:
   patterns:
     - '!./**'
     - ./bin/**
-          
+  
+resources:
+  Resources:
+    myTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        TableName: ${env:TABLE_NAME}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+
 functions:
   app:
     handler: bin/cmd
     events:
       - httpApi:
           path: /app
-          method: get
+          method: post
  
