@@ -8,9 +8,11 @@ useDotenv: true
 provider:
   name: aws
   runtime: go1.x
-  region: ${env:AWS_REGION}
+  region: ap-northeast-1
   memorySize: 128
-  
+  environment:
+    DYNAMODB_TABLE: ${env:DYNAMODB_TABLE}
+    MY_AWS_REGION: ${env:MY_AWS_REGION}
   iam:
     role:
       statements:
@@ -18,18 +20,16 @@ provider:
           Action:
             - "dynamodb:*"
           Resource: ${env:DYNAMODB_TABLE_ARN}
-
 package:
   patterns:
     - '!./**'
     - ./bin/**
-  
 resources:
   Resources:
     myTable:
       Type: 'AWS::DynamoDB::Table'
       Properties:
-        TableName: ${env:TABLE_NAME}
+        TableName: ${env:DYNAMODB_TABLE}
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
@@ -39,7 +39,6 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 5
           WriteCapacityUnits: 5
-
 functions:
   app:
     handler: bin/cmd
