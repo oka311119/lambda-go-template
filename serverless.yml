@@ -16,10 +16,18 @@ provider:
   iam:
     role:
       statements:
-        - Effect: "Allow"
+        - Effect: Allow
           Action:
-            - "dynamodb:*"
-          Resource: ${env:DYNAMODB_TABLE_ARN}
+            - dynamodb:DescribeTable
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+            - lambda:InvokeFunction
+          Resource:
+            - ${env:DYNAMODB_TABLE_ARN}
 package:
   patterns:
     - '!./**'
@@ -40,10 +48,25 @@ resources:
           ReadCapacityUnits: 5
           WriteCapacityUnits: 5
 functions:
-  app:
+  item:
     handler: bin/cmd
     events:
-      - httpApi:
-          path: /app
+      - http:
+          path: /item
+          method: get
+          cors: true
+      - http:
+          path: /item
           method: post
- 
+          cors: true
+      - http:
+          path: /item/{id}
+          method: put
+          cors: true
+      - http:
+          path: /item/{id}
+          method: delete
+          cors: true
+plugins:
+  - serverless-offline
+  - serverless-dynamodb-local

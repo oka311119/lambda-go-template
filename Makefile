@@ -8,3 +8,7 @@ clean:
 
 deploy: clean build
 	sls deploy --verbose
+
+local: clean build
+	# sls dynamodb start
+	sls offline start

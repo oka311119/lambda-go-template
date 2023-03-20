@@ -22,3 +22,6 @@ bin
 
 # AWS environment variables
 .env
+
+# Serverless framework environments
+node_modules

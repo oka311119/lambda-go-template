@@ -68,7 +68,9 @@ func (h *Handler) update(ctx context.Context, req Request) (Response, error) {
 	if err := json.Unmarshal([]byte(req.Body), &item); err != nil {
 		return Response{}, err
 	}
-	if item.Id == "" {
+	if id, ok := req.PathParameters["id"]; ok {
+		item.Id = id
+	} else {
 		return jsonResponse(http.StatusBadRequest, ErrIDRequired)
 	}
 	if err := h.repository.Save(ctx, item); err != nil {
